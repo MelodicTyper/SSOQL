@@ -10,7 +10,7 @@ What SSOQL is not:
 
 ## Documentation
 
-After importing the library, you can create queries by using ssoql.createQuery(query) with the type of ssoqlQuery. This does not run the query yet. You can see the object imports via ssoqlQuery.expectedObjects(), which returns the expected keys of the objects. You can run the query and get the return by running ssoqlQuery.execute(). Each keyword in the query language runs a javascript function on the current context.
+After importing the library, you can create queries by using ssoql.createQuery(query) with the type of ssoqlQuery. This does not run the query yet. You can see the object imports via ssoqlQuery.expectedObjects(), which returns the expected keys of the objects. You can run the query and get the return by running ssoqlQuery.execute(). Each keyword in the query language runs a javascript function on the current context, determined by USE and SELECT cluases
 
 ## Examples for 12sAI
 1. In Week 1 versus the Broncos, did the Seahawks give up more yards per play when Jarren Reed was on the field or when Dre'Mont Jones was on the field?
