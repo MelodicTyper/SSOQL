@@ -1,0 +1,24 @@
+{
+  "name": "ssoql",
+  "version": "1.0.0",
+  "description": "What if SQL for interacting with Javascript objects? Introducing SSOQL, a simple language for querying javascript objects with schema support that's inspired by SQL's syntax. Designed to have AI interact with a dataset without having it directly generating code.",
+  "main": "dist/ssoql.js",
+  "types": "dist/ssoql.d.ts",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node src/ssoql.ts",
+    "test": "npx ts-node test/test.ts",
+    "prepare": "npm run build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^24.0.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  }
+}
