@@ -10,7 +10,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "ts-node src/ssoql.ts",
-    "test": "npx ts-node test/test.ts",
+    "test": "mocha test/**/*.test.js",
     "prepare": "npm run build"
   },
   "keywords": [],
@@ -18,7 +18,12 @@
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^24.0.1",
+    "mocha": "^11.6.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "csv-parser": "^3.2.0",
+    "fs": "^0.0.1-security"
   }
 }

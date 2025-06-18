@@ -4,13 +4,52 @@ What if there was SQL for interacting with Javascript objects organized into a t
 
 What SSOQL is not:
 - Not a high performance or optimized library meant for databases
-- Not a database at all - there's no inserting data.
+- Not a database at all - there's no inserting data
+- Not intended to replace full-featured query languages for complex applications
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue)](https://www.typescriptlang.org/)
 
+## Implementation
+
+SSOQL is implemented in TypeScript with a simple parser and execution engine that supports the full language specification described below. The implementation includes:
+
+- A parser that processes USE, QUERY, and operation statements
+- Support for variables with $ prefix
+- SELECT operations with WHERE clause filtering
+- Aggregate operations like SUM, COUNT, DIVIDE, PERCENT_OF, and MOST_FREQUENT
+- Multiple query blocks with individual results
+
 ## Documentation
 
-After importing the library, you can create queries by using ssoql.createQuery(query) with the type of ssoqlQuery. This does not run the query yet. You can see the object imports via ssoqlQuery.expectedObjects(), which returns the expected keys of the objects. You can run the query and get the return by running ssoqlQuery.execute(). Each keyword in the query language runs a javascript function on the current context, determined by USE and SELECT cluases
+After importing the library, you can create queries by using `ssoql.createQuery(query)` which returns a `SSOQLQuery` object. This does not run the query yet. You can see the object paths the query needs via `ssoqlQuery.expectedObjects()`, which returns the paths of required objects. You can run the query and get the results by calling `ssoqlQuery.execute(data)` with your data object. Each keyword in the query language runs a specific operation on the current context, determined by USE and SELECT clauses.
+
+```typescript
+import ssoql from 'ssoql';
+
+// Create a query
+const query = ssoql.createQuery(`
+  USE data.users
+  
+  QUERY activeUsers
+  COUNT SELECT users WHERE (active = "true")
+  RETURN
+`);
+
+// See what objects the query needs
+const requiredObjects = query.expectedObjects();
+// Returns: ['data.users']
+
+// Execute the query with data
+const results = query.execute({
+  data: {
+    users: [
+      { id: 1, name: "Alice", active: "true" },
+      { id: 2, name: "Bob", active: "false" }
+    ]
+  }
+});
+// Returns: { activeUsers: 1 }
+```
 
 ## Examples for 12sAI
 1. In Week 1 versus the Broncos, did the Seahawks give up more yards per play when Jarren Reed was on the field or when Dre'Mont Jones was on the field?
