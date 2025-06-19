@@ -225,12 +225,25 @@ class SSOQL {
      * Parse PERCENT_OF operation
      */
     parsePercentOfOperation(line, block) {
-        const selectPart = line.substring(line.indexOf("SELECT")).trim();
-        const selectOp = this.parseSelectStatement(selectPart);
+        const percentOfParts = line
+            .substring("PERCENT_OF ".length)
+            .split(",")
+            .map((part) => part.trim());
+        if (percentOfParts.length !== 2) {
+            throw new Error("PERCENT_OF requires two SELECT statements separated by comma");
+        }
+        const numeratorSelectOp = this.parseSelectStatement(percentOfParts[0]);
+        const denominatorSelectOp = this.parseSelectStatement(percentOfParts[1]);
         block.operations.push({
             type: "PERCENT_OF",
-            fields: selectOp.fields,
-            conditions: selectOp.conditions,
+            numerator: {
+                fields: numeratorSelectOp.fields,
+                conditions: numeratorSelectOp.conditions,
+            },
+            denominator: {
+                fields: denominatorSelectOp.fields,
+                conditions: denominatorSelectOp.conditions,
+            },
         });
     }
     /**
@@ -527,25 +540,33 @@ class SSOQL {
      * Execute a PERCENT_OF operation
      */
     executePercentOf(operation, data) {
-        // First execute a SELECT to get the filtered items
-        const selectedItems = this.executeSelect(operation, data);
-        if (!Array.isArray(selectedItems))
+        // We need both numerator and denominator from the operation
+        if (!operation.numerator || !operation.denominator) {
             return 0;
-        // Determine the total count (all items without the filter)
-        let totalCount = 0;
-        if (data.plays && Array.isArray(data.plays)) {
-            if (operation.conditions && operation.conditions.length > 0) {
-                // For complex conditions, we need to count items that match at least the first condition's field
-                const firstField = operation.conditions[0].field;
-                totalCount = data.plays.filter((p) => p[firstField] !== undefined).length;
-            }
-            else {
-                totalCount = data.plays.length;
-            }
         }
-        if (totalCount === 0)
+        // Execute the numerator SELECT to get the subset
+        const numeratorOp = {
+            type: "SELECT",
+            fields: operation.numerator.fields,
+            conditions: operation.numerator.conditions,
+        };
+        const numeratorItems = this.executeSelect(numeratorOp, data);
+        // Execute the denominator SELECT to get the total
+        const denominatorOp = {
+            type: "SELECT",
+            fields: operation.denominator.fields,
+            conditions: operation.denominator.conditions,
+        };
+        const denominatorItems = this.executeSelect(denominatorOp, data);
+        if (!Array.isArray(numeratorItems) || !Array.isArray(denominatorItems)) {
             return 0;
-        return (selectedItems.length / totalCount) * 100;
+        }
+        const numeratorCount = numeratorItems.length;
+        const denominatorCount = denominatorItems.length;
+        if (denominatorCount === 0) {
+            return 0; // Avoid division by zero
+        }
+        return (numeratorCount / denominatorCount) * 100;
     }
     /**
      * Execute a MOST_FREQUENT operation

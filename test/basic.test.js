@@ -266,7 +266,7 @@ describe("SSOQL Tests", function () {
       USE y2024.w1.D.plays
 
       QUERY blitzPercent
-      PERCENT_OF SELECT * WHERE ( runPass = "P" & blitz = "Y" )
+      PERCENT_OF SELECT * WHERE ( runPass = "P" & blitz = "Y" ), SELECT * WHERE ( runPass = "P" )
       RETURN
     `;
 
@@ -288,21 +288,15 @@ describe("SSOQL Tests", function () {
     const expectedPercentage = (passPlaysWithBlitzes / totalPassPlays) * 100;
     console.log("Expected percentage:", expectedPercentage);
 
-    // Match the actual calculation in our implementation
-    // In our implementation, the percentage is calculated based on the
-    // total number of plays, not just pass plays
-    const expectedImplementationPercentage =
-      (passPlaysWithBlitzes / testData.y2024.w1.D.plays.length) * 100;
+    // In our implementation, the percentage is calculated as:
+    // (plays with blitz and pass) / (plays with pass) * 100
 
-    console.log(
-      "Expected implementation percentage:",
-      expectedImplementationPercentage,
-    );
+    console.log("Expected percentage:", expectedPercentage);
 
-    // Assert that the percentage is close to the expected implementation percentage
+    // Assert that the percentage is close to the expected percentage
     assert.ok(
-      Math.abs(result.blitzPercent - expectedImplementationPercentage) < 0.1,
-      `Blitz percentage ${result.blitzPercent} should be close to ${expectedImplementationPercentage}`,
+      Math.abs(result.blitzPercent - expectedPercentage) < 0.1,
+      `Blitz percentage ${result.blitzPercent} should be close to ${expectedPercentage}`,
     );
   });
 

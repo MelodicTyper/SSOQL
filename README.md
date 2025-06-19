@@ -81,7 +81,7 @@ from under center featured a condensed formation?
 USE y2024.w1.D.[plays, runPass, underCenterOrGun, offensiveFormation]
 
 QUERY runs
-PERCENT_OF SELECT plays WHERE (runPass = "R" & offensiveFormation CONTAINS "Condensed")
+PERCENT_OF SELECT plays WHERE (runPass = "R" & offensiveFormation CONTAINS "Condensed"), SELECT plays WHERE (runPass = "R")
 
 RETURN
 ```
@@ -92,7 +92,7 @@ Expected Result: {runs:75}
 USE y2024.[w1, w2].O.[plays, runPass, underCenterOrGun]
 
 QUERY pass
-PERCENT_OF SELECT plays WHERE (runPass="R" & underCenterOrGun="G")
+PERCENT_OF SELECT plays WHERE (runPass="R" & underCenterOrGun="G"), SELECT plays WHERE (runPass="R")
 
 RETURN
 ```
@@ -107,7 +107,7 @@ $mostOccuringCoverage MOST_FREQUENT SELECT coverage
 RETURN //Returns the contents of the variable - the contents of that select are still the context
 
 QUERY perCoverage
-PERCENT_OF SELECT plays WHERE (coverage=$mostOccuringCoverage) // Variables are always global
+PERCENT_OF SELECT plays WHERE (coverage=$mostOccuringCoverage), SELECT plays // Variables are always global
 RETURN
 ```
 Expected Result: {favCoverage:"Cover 1", perCoverage: 46}
@@ -150,7 +150,7 @@ Expected Result: {paAvg:2}
 USE y2024.w1.D.[plays, runPass, blitz]
 
 QUERY blitzPercent
-PERCENT_OF SELECT plays WHERE (runPass = "P" & blitz = "Y") 
+PERCENT_OF SELECT plays WHERE (runPass = "P" & blitz = "Y"), SELECT plays WHERE (runPass = "P")
 RETURN
 ```
 Expected Result: {blitzPercent: 50}
@@ -258,7 +258,7 @@ Variables are global across all query blocks in a statement.
 - `SUM`: Calculates the sum of values
 - `COUNT`: Counts the number of items
 - `DIVIDE`: Divides one value by another
-- `PERCENT_OF`: Calculates what percentage one set is of another
+- `PERCENT_OF`: Calculates what percentage the first set is of the second set
 - `MOST_FREQUENT`: Finds the most frequently occurring value
 
 Examples:
@@ -266,7 +266,7 @@ Examples:
 $reedYards SUM
 $reedPlays COUNT SELECT plays WHERE (dPlayers CONTAINS 90)
 DIVIDE $reedYards $reedPlays
-PERCENT_OF SELECT plays WHERE (runPass = "P" & blitz = "Y")
+PERCENT_OF SELECT plays WHERE (runPass = "P" & blitz = "Y"), SELECT plays WHERE (runPass = "P")
 ```
 
 #### RETURN
