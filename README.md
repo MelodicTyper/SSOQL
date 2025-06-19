@@ -1,6 +1,6 @@
 # SSOQL - Super Simple Object Query Language
 
-What if there was SQL for interacting with Javascript objects organized into a table? Introducing SSOQL, a simple language for querying javascript objects that's inspired by SQL's syntax. Designed to have AI interact with a dataset without having it directly generating code. 
+What if there was SQL for interacting with Javascript objects organized into a table? Introducing SSOQL, a simple custom made language for querying javascript objects that's inspired by SQL's syntax. Designed to have AI interact with a dataset without having it directly generating code. 
 
 What SSOQL is not:
 - Not a high performance or optimized library meant for databases
@@ -171,7 +171,7 @@ Expected Result: {int:{coverage: "Quarters", front:"4-0"}}
 ## Language Design
 
 ### Core Structure
-SSOQL follows a simple structure with named query blocks that contain operations on data. Each query can have multiple operations that process the data and produce a result.
+SSOQL follows a simple structure with named query blocks that contain operations on data. Each query can have multiple operations that process the data and produce ONE result. Queries do not produce objects or arrays, they produce a string, a number, or a boolean.
 
 ### Assumed Data
 Lots of data is assumed to reduce complexity. For example, if a query uses a key name for something far down in USE context with multiple contexts, it will return the query ran on all of the possible assumed fields. For example,
@@ -233,8 +233,16 @@ Filters data based on conditions. Used with SELECT to specify which data to retr
 
 Syntax for conditions:
 - Equality: `field = value`
+- Inequality: `field != value`
+- Greater than: `field > value`
+- Less than: `field < value`
+- Greater than or equal to: `field >= value`
+- Less than or equal to: `field <= value`
 - Contains: `field CONTAINS value`
+- Not contains: `field NOT_CONTAINS value`
 - Logical AND: `condition1 & condition2`
+- Logical OR: `condition1 | condition2`
+- Logical NOT: `!(condition)`
 
 #### Variables
 Variables store intermediate results for later use. Variable names are prefixed with $.
@@ -258,8 +266,19 @@ Variables are global across all query blocks in a statement.
 - `SUM`: Calculates the sum of values
 - `COUNT`: Counts the number of items
 - `DIVIDE`: Divides one value by another
+- `MULTIPLY`: Multiplies two values together
+- `SUBTRACT`: Subtracts the second value from the first
+- `AVERAGE`: Calculates the average (mean) of values
+- `MEDIAN`: Finds the median value
+- `MIN`: Finds the minimum value
+- `MAX`: Finds the maximum value
 - `PERCENT_OF`: Calculates what percentage the first set is of the second set
 - `MOST_FREQUENT`: Finds the most frequently occurring value
+- `LEAST_FREQUENT`: Finds the least frequently occurring value
+- `UNIQUE`: Returns a list of unique values
+- `STANDARD_DEVIATION`: Calculates the standard deviation of values
+- `VARIANCE`: Calculates the variance of values
+- `RANGE`: Calculates the difference between the maximum and minimum values
 
 Examples:
 ```
@@ -283,7 +302,12 @@ RETURN //Returns the contents of the variable - the contents of that select are 
 ### Data Types
 - Strings: Represented with double quotes (e.g., `"R"`, `"PlayAction"`)
 - Numbers: Represented without quotes (e.g., `90`, `55`)
-- Arrays: Fields can contain arrays, which can be checked with the CONTAINS operator
+- Booleans: Represented as `true` or `false` (case-sensitive)
+- Arrays: Fields can contain arrays, which can be checked with the CONTAINS or NOT_CONTAINS operators
+- Null: Represented as `null` (case-sensitive)
 
 ### Execution Model
 Each query is executed in sequence. The query's result is determined by the last operation before the RETURN statement. When multiple query blocks exist, the results are combined into a single object with keys matching the query names.
+
+## AI Use
+AI helped me to generate tests and the starting structure for this project. It generated the starting code for src/ that I redesigned, refactored, and reviewed.

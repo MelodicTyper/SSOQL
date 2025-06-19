@@ -7,31 +7,24 @@
  * with support for USE statements, multiple named queries, and various operations
  * like SELECT, COUNT, SUM, DIVIDE, PERCENT_OF, and MOST_FREQUENT.
  */
+import { SSOQLQuery } from "./types/types";
 /**
- * Represents a SSOQL query.
+ * SSOQL implementation class
+ * Handles query creation and execution
  */
-export interface SSOQLQuery {
+declare class SSOQL {
     /**
-     * Returns the names of objects expected by the query.
+     * Creates a new SSOQL query from a query string
+     * @param queryText The SSOQL query text
+     * @returns A SSOQLQuery object that can be executed against data
      */
-    expectedObjects(): string[];
+    createQuery(queryText: string): SSOQLQuery;
     /**
-     * Executes the query against the provided data objects.
-     * @param data - Object containing the data to query
-     * @returns The query results as an object with query names as keys
+     * Parses a query string into an AST
+     * @param queryText The query text to parse
+     * @returns The AST representation of the query
      */
-    execute(data: Record<string, any>): Record<string, any>;
+    private parseQuery;
 }
-/**
- * Creates a SSOQL query from a query string.
- * @param query - The SSOQL query string
- * @returns A SSOQLQuery object
- */
-export declare function createQuery(query: string): SSOQLQuery;
-/**
- * Main SSOQL module exports.
- */
-declare const _default: {
-    createQuery: typeof createQuery;
-};
-export default _default;
+declare const ssoql: SSOQL;
+export default ssoql;

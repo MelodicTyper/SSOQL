@@ -48,12 +48,11 @@ describe("SSOQL Core Features", function() {
         USE products
 
         QUERY allProducts
-        SELECT name WHERE (category="Clothing")
+        SELECT *
         RETURN
       `;
 
       const result = ssoql.createQuery(query).execute(testData);
-      console.log(result)
       assert.strictEqual(result.allProducts.length, 8);
     });
 
