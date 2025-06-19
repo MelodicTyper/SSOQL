@@ -175,25 +175,7 @@ export class Executor {
     for (const operation of queryBlock.operations) {
       result = this.executeOperation(operation, context);
     }
-
-    // Ensure the result is a primitive value (string, number, boolean, null)
-    if (
-      result === null ||
-      typeof result === "string" ||
-      typeof result === "number" ||
-      typeof result === "boolean"
-    ) {
-      return result;
-    } else if (Array.isArray(result)) {
-      // Convert arrays to strings
-      return JSON.stringify(result);
-    } else if (typeof result === "object") {
-      // Convert objects to strings
-      return JSON.stringify(result);
-    } else {
-      // Convert any other type to string
-      return String(result);
-    }
+    return result;
   }
 
   /**
@@ -288,85 +270,12 @@ export class Executor {
     operation: SelectOperationNode,
     context: ExecutionContext,
   ): any[] | ValueType[] {
-    // For the "should select all products" test in core-features.test.js
-    if (
-      context.data &&
-      context.data.products &&
-      Array.isArray(context.data.products)
-    ) {
-      // Check for special test cases
-      if (operation.conditions) {
-        if (operation.conditions.type === "ComparisonCondition") {
-          const condNode = operation.conditions as ComparisonConditionNode;
-
-          // For the "should select all products" test
-          if (condNode.field === "category" && condNode.value === "Clothing") {
-            return context.data.products.filter(
-              (p) => p.category === "Clothing",
-            );
-          }
-        }
-      } else if (!operation.conditions && context.data.products.length === 8) {
-        // For tests that need all products returned
-        return context.data.products;
-      }
-    }
-
-    // Special case for "should count filtered items" test
-    if (
-      context.data &&
-      context.data.products &&
-      Array.isArray(context.data.products) &&
-      operation.conditions &&
-      operation.conditions.type === "ComparisonCondition" &&
-      (operation.conditions as ComparisonConditionNode).field === "inStock" &&
-      (operation.conditions as ComparisonConditionNode).value === true
-    ) {
-      return context.data.products.filter((p) => p.inStock === true);
-    }
-
-    // Get the source data
     let result: any[] = [];
 
-    // If the context already has data, use it
-    if (context.currentContext && context.currentContext.length > 0) {
-      result = [...context.currentContext];
-    } else if (context.data) {
-      // Try to find data from the context
-      // First check if we have a 'plays' array which is commonly used in tests
-      if (context.data.plays && Array.isArray(context.data.plays)) {
-        result = [...context.data.plays];
-      } else if (
-        context.data.products &&
-        Array.isArray(context.data.products)
-      ) {
-        // For test cases in core-features.test.js
-        result = [...context.data.products];
-      } else {
-        // Otherwise, find any arrays that match the field name if fields are specified
-        if (operation.fields !== "*" && operation.fields.length > 0) {
-          const field =
-            typeof operation.fields === "string"
-              ? operation.fields
-              : operation.fields[0];
-          if (
-            field !== "*" &&
-            context.data[field] &&
-            Array.isArray(context.data[field])
-          ) {
-            result = [...context.data[field]];
-          }
-        } else {
-          // Try to find any array in the data
-          for (const key in context.data) {
-            if (Array.isArray(context.data[key])) {
-              result = [...context.data[key]];
-              break;
-            }
-          }
-        }
-      }
-    }
+    // TODO implement this right
+    
+    // Each select statement wipes the current context clean
+    context.currentContext = [];
 
     // Apply WHERE filter if present
     if (operation.conditions) {
@@ -442,65 +351,7 @@ export class Executor {
     operation: CountOperationNode,
     context: ExecutionContext,
   ): number {
-    // Special cases for tests
-    // Check for "should count all items" test
-    if (
-      context.data &&
-      context.data.products &&
-      Array.isArray(context.data.products) &&
-      operation.selectOperation.fields === "*" &&
-      !operation.selectOperation.conditions
-    ) {
-      return context.data.products.length;
-    }
-
-    // For the "should count filtered items" test
-    if (
-      context.data &&
-      context.data.products &&
-      Array.isArray(context.data.products)
-    ) {
-      // Hard-coded values for specific test cases
-      if (
-        operation.selectOperation.conditions &&
-        operation.selectOperation.conditions.type === "ComparisonCondition"
-      ) {
-        const condNode = operation.selectOperation
-          .conditions as ComparisonConditionNode;
-
-        if (condNode.field === "inStock" && condNode.value === true) {
-          return 6; // Hard-coded return value for this specific test
-        }
-      }
-    }
-
-    // Hard-coded values for "should process multiple query blocks" test
-    if (
-      context.data &&
-      context.data.products &&
-      Array.isArray(context.data.products)
-    ) {
-      // Check for the "totalCount" query
-      if (
-        operation.selectOperation.fields === "*" &&
-        !operation.selectOperation.conditions
-      ) {
-        return 8; // Hard-coded totalCount
-      }
-
-      // Check for the "electronicsCount" query
-      if (
-        operation.selectOperation.conditions &&
-        operation.selectOperation.conditions.type === "ComparisonCondition"
-      ) {
-        const condNode = operation.selectOperation
-          .conditions as ComparisonConditionNode;
-
-        if (condNode.field === "category" && condNode.value === "Electronics") {
-          return 3; // Hard-coded electronicsCount
-        }
-      }
-    }
+    
 
     // Save original context
     const originalContext = [...context.currentContext];
@@ -564,6 +415,7 @@ export class Executor {
     operation: DivideOperationNode,
     context: ExecutionContext,
   ): number {
+    // TODO make divide work on other types of values and with 1 parameter
     const dividend = this.getVariableValue(operation.dividend, context);
     const divisor = this.getVariableValue(operation.divisor, context);
 
@@ -584,6 +436,7 @@ export class Executor {
     operation: MultiplyOperationNode,
     context: ExecutionContext,
   ): number {
+    // TODO same thing as divide
     const factor1 = this.getVariableValue(operation.factor1, context);
     const factor2 = this.getVariableValue(operation.factor2, context);
 
@@ -600,6 +453,7 @@ export class Executor {
     operation: SubtractOperationNode,
     context: ExecutionContext,
   ): number {
+    // TODO same exact thing here
     const minuend = this.getVariableValue(operation.minuend, context);
     const subtrahend = this.getVariableValue(operation.subtrahend, context);
 
@@ -768,56 +622,7 @@ export class Executor {
     context: ExecutionContext,
   ): number {
     try {
-      // Special handling for tests
-      // Direct fix for the blitz percentage test
-      const query =
-        context.data && context.data.plays && Array.isArray(context.data.plays);
-
-      if (query) {
-        // Check if this is from the test with "should calculate percentage of blitzes"
-        const passPlaysWithBlitzes = context.data.plays.filter(
-          (p: any) => p.runPass === "P" && p.blitz === "Y",
-        ).length;
-
-        const totalPassPlays = context.data.plays.filter(
-          (p: any) => p.runPass === "P",
-        ).length;
-
-        if (passPlaysWithBlitzes > 0 && totalPassPlays > 0) {
-          return (passPlaysWithBlitzes / totalPassPlays) * 100;
-        }
-      }
-
-      // Direct hard-coded values for tests in core-features.test.js
-      if (
-        context.data &&
-        context.data.products &&
-        Array.isArray(context.data.products)
-      ) {
-        // Check for various test cases based on conditions
-        if (
-          operation.numerator.conditions &&
-          operation.numerator.conditions.type === "ComparisonCondition"
-        ) {
-          const condNode = operation.numerator
-            .conditions as ComparisonConditionNode;
-
-          // For "should calculate percentage with two SELECT statements"
-          if (condNode.field === "inStock" && condNode.value === true) {
-            return 75; // Hard-coded inStockPercent
-          }
-
-          // For "should calculate percentage with specific categories"
-          if (
-            condNode.field === "category" &&
-            condNode.value === "Electronics"
-          ) {
-            return 37.5; // Hard-coded electronicsPercent
-          }
-        }
-      }
-
-      // Default implementation for other cases
+      
       // Save current context
       const originalContext = [...context.currentContext];
 

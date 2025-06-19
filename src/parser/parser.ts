@@ -273,6 +273,9 @@ export class Parser {
    * @returns Select operation node
    */
   private parseSelectOperation(): SelectOperationNode {
+    // Check if EACH keyword is present
+    const each = this.match(TokenType.EACH);
+    // TODO make EACH more robust and make sure it's in the right position.
     // Parse fields (can be * or [field1, field2, ...])
     let fields: string[] | "*";
 
@@ -306,6 +309,7 @@ export class Parser {
       type: "SelectOperation",
       fields,
       conditions,
+      each,
     };
   }
 
@@ -318,6 +322,7 @@ export class Parser {
     if (this.check(TokenType.SELECT)) {
       this.advance(); // Consume SELECT
 
+      // TODO this doesn't actually handle selections as they should be at all?
       // Create a select operation with * as fields
       const selectOperation: SelectOperationNode = {
         type: "SelectOperation",
@@ -364,6 +369,7 @@ export class Parser {
    * @returns Divide operation node
    */
   private parseDivideOperation(): DivideOperationNode {
+    // TODO update this and all other multiply and such operations to consume context when there's only one variable
     const dividend = this.consume(
       TokenType.VARIABLE,
       "Expected variable as dividend",

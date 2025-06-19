@@ -31,6 +31,7 @@ export declare enum TokenType {
     STANDARD_DEVIATION = "STANDARD_DEVIATION",
     VARIANCE = "VARIANCE",
     RANGE = "RANGE",
+    EACH = "EACH",
     CONTAINS = "CONTAINS",
     NOT_CONTAINS = "NOT_CONTAINS",
     VARIABLE = "VARIABLE",
@@ -127,6 +128,7 @@ export interface SelectOperationNode extends OperationNode {
     type: "SelectOperation";
     fields: string[] | "*";
     conditions?: ConditionNode;
+    each?: boolean;
 }
 /**
  * COUNT operation node
@@ -287,6 +289,7 @@ export interface ExecutionContext {
     data: Record<string, any>;
     variables: Map<string, any>;
     currentContext: any[];
+    usePath?: UsePathNode;
 }
 /**
  * Public interface for SSOQL query

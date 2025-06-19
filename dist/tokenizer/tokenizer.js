@@ -40,7 +40,7 @@ class Tokenizer {
         }
         this.tokens.push({
             type: types_1.TokenType.EOF,
-            value: '',
+            value: "",
             line: this.line,
             column: this.column,
         });
@@ -57,7 +57,7 @@ class Tokenizer {
      */
     advance() {
         const char = this.source.charAt(this.current++);
-        if (char === '\n') {
+        if (char === "\n") {
             this.line++;
             this.column = 1;
         }
@@ -71,7 +71,7 @@ class Tokenizer {
      */
     peek() {
         if (this.isAtEnd())
-            return '\0';
+            return "\0";
         return this.source.charAt(this.current);
     }
     /**
@@ -79,7 +79,7 @@ class Tokenizer {
      */
     peekNext() {
         if (this.current + 1 >= this.source.length)
-            return '\0';
+            return "\0";
         return this.source.charAt(this.current + 1);
     }
     /**
@@ -114,55 +114,55 @@ class Tokenizer {
         const c = this.advance();
         switch (c) {
             // Single-character tokens
-            case '(':
+            case "(":
                 this.addToken(types_1.TokenType.LEFT_PAREN);
                 break;
-            case ')':
+            case ")":
                 this.addToken(types_1.TokenType.RIGHT_PAREN);
                 break;
-            case '[':
+            case "[":
                 this.addToken(types_1.TokenType.LEFT_BRACKET);
                 break;
-            case ']':
+            case "]":
                 this.addToken(types_1.TokenType.RIGHT_BRACKET);
                 break;
-            case ',':
+            case ",":
                 this.addToken(types_1.TokenType.COMMA);
                 break;
-            case '.':
+            case ".":
                 this.addToken(types_1.TokenType.DOT);
                 break;
-            case '*':
+            case "*":
                 this.addToken(types_1.TokenType.ASTERISK);
                 break;
-            case '&':
+            case "&":
                 this.addToken(types_1.TokenType.AMPERSAND);
                 break;
-            case '|':
+            case "|":
                 this.addToken(types_1.TokenType.PIPE);
                 break;
             // Two-character tokens
-            case '=':
+            case "=":
                 this.addToken(types_1.TokenType.EQUALS);
                 break;
-            case '!':
-                if (this.match('=')) {
+            case "!":
+                if (this.match("=")) {
                     this.addToken(types_1.TokenType.NOT_EQUALS);
                 }
                 else {
                     this.addToken(types_1.TokenType.NOT);
                 }
                 break;
-            case '>':
-                if (this.match('=')) {
+            case ">":
+                if (this.match("=")) {
                     this.addToken(types_1.TokenType.GREATER_THAN_EQUALS);
                 }
                 else {
                     this.addToken(types_1.TokenType.GREATER_THAN);
                 }
                 break;
-            case '<':
-                if (this.match('=')) {
+            case "<":
+                if (this.match("=")) {
                     this.addToken(types_1.TokenType.LESS_THAN_EQUALS);
                 }
                 else {
@@ -170,12 +170,12 @@ class Tokenizer {
                 }
                 break;
             // Handle whitespace
-            case ' ':
-            case '\r':
-            case '\t':
+            case " ":
+            case "\r":
+            case "\t":
                 // Ignore whitespace
                 break;
-            case '\n':
+            case "\n":
                 // Already handled in advance()
                 break;
             // String literals
@@ -186,10 +186,10 @@ class Tokenizer {
                 this.string("'");
                 break;
             // Comments
-            case '/':
-                if (this.match('/')) {
+            case "/":
+                if (this.match("/")) {
                     // A comment goes until the end of the line.
-                    while (this.peek() !== '\n' && !this.isAtEnd()) {
+                    while (this.peek() !== "\n" && !this.isAtEnd()) {
                         this.advance();
                     }
                     this.addToken(types_1.TokenType.COMMENT);
@@ -199,7 +199,7 @@ class Tokenizer {
                 }
                 break;
             // Variables
-            case '$':
+            case "$":
                 this.variable();
                 break;
             default:
@@ -251,7 +251,7 @@ class Tokenizer {
             this.advance();
         }
         // Look for a decimal part
-        if (this.peek() === '.' && this.isDigit(this.peekNext())) {
+        if (this.peek() === "." && this.isDigit(this.peekNext())) {
             // Consume the "."
             this.advance();
             while (this.isDigit(this.peek())) {
@@ -272,85 +272,88 @@ class Tokenizer {
         // Check for keywords
         switch (text) {
             // Keywords
-            case 'USE':
+            case "USE":
                 this.addToken(types_1.TokenType.USE);
                 break;
-            case 'QUERY':
+            case "QUERY":
                 this.addToken(types_1.TokenType.QUERY);
                 break;
-            case 'SELECT':
+            case "SELECT":
                 this.addToken(types_1.TokenType.SELECT);
                 break;
-            case 'WHERE':
+            case "EACH":
+                this.addToken(types_1.TokenType.EACH);
+                break;
+            case "WHERE":
                 this.addToken(types_1.TokenType.WHERE);
                 break;
-            case 'RETURN':
+            case "RETURN":
                 this.addToken(types_1.TokenType.RETURN);
                 break;
-            case 'COUNT':
+            case "COUNT":
                 this.addToken(types_1.TokenType.COUNT);
                 break;
-            case 'SUM':
+            case "SUM":
                 this.addToken(types_1.TokenType.SUM);
                 break;
-            case 'DIVIDE':
+            case "DIVIDE":
                 this.addToken(types_1.TokenType.DIVIDE);
                 break;
-            case 'MULTIPLY':
+            case "MULTIPLY":
                 this.addToken(types_1.TokenType.MULTIPLY);
                 break;
-            case 'SUBTRACT':
+            case "SUBTRACT":
                 this.addToken(types_1.TokenType.SUBTRACT);
                 break;
-            case 'AVERAGE':
+            case "AVERAGE":
                 this.addToken(types_1.TokenType.AVERAGE);
                 break;
-            case 'MEDIAN':
+            case "MEDIAN":
                 this.addToken(types_1.TokenType.MEDIAN);
                 break;
-            case 'MIN':
+            case "MIN":
                 this.addToken(types_1.TokenType.MIN);
                 break;
-            case 'MAX':
+            case "MAX":
                 this.addToken(types_1.TokenType.MAX);
                 break;
-            case 'PERCENT_OF':
+            case "PERCENT_OF":
                 this.addToken(types_1.TokenType.PERCENT_OF);
                 break;
-            case 'MOST_FREQUENT':
+            case "MOST_FREQUENT":
                 this.addToken(types_1.TokenType.MOST_FREQUENT);
                 break;
-            case 'LEAST_FREQUENT':
+            case "LEAST_FREQUENT":
                 this.addToken(types_1.TokenType.LEAST_FREQUENT);
                 break;
-            case 'UNIQUE':
+            case "UNIQUE":
                 this.addToken(types_1.TokenType.UNIQUE);
                 break;
-            case 'STANDARD_DEVIATION':
+            case "STANDARD_DEVIATION":
                 this.addToken(types_1.TokenType.STANDARD_DEVIATION);
                 break;
-            case 'VARIANCE':
+            case "VARIANCE":
                 this.addToken(types_1.TokenType.VARIANCE);
                 break;
-            case 'RANGE':
+            case "RANGE":
                 this.addToken(types_1.TokenType.RANGE);
                 break;
             // Operators
-            case 'CONTAINS':
+            case "CONTAINS":
                 this.addToken(types_1.TokenType.CONTAINS);
                 break;
-            case 'NOT_CONTAINS':
+            case "NOT_CONTAINS":
                 this.addToken(types_1.TokenType.NOT_CONTAINS);
                 break;
             // Literals
-            case 'true':
-                this.addToken(types_1.TokenType.BOOLEAN, 'true');
+            case "true":
+                this.addToken(types_1.TokenType.BOOLEAN, "true");
                 break;
-            case 'false':
-                this.addToken(types_1.TokenType.BOOLEAN, 'false');
+            case "false":
+                this.addToken(types_1.TokenType.BOOLEAN, "false");
                 break;
-            case 'null':
-                this.addToken(types_1.TokenType.NULL, 'null');
+            case "null":
+                this.addToken(types_1.TokenType.NULL, "null");
                 break;
             // Identifiers
             default:
@@ -362,15 +365,13 @@ class Tokenizer {
      * Checks if a character is a digit
      */
     isDigit(c) {
-        return c >= '0' && c <= '9';
+        return c >= "0" && c <= "9";
     }
     /**
      * Checks if a character is alphabetic
      */
     isAlpha(c) {
-        return (c >= 'a' && c <= 'z') ||
-            (c >= 'A' && c <= 'Z') ||
-            c === '_';
+        return (c >= "a" && c <= "z") || (c >= "A" && c <= "Z") || c === "_";
     }
     /**
      * Checks if a character is alphanumeric

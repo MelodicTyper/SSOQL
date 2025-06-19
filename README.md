@@ -171,7 +171,7 @@ Expected Result: {int:{coverage: "Quarters", front:"4-0"}}
 ## Language Design
 
 ### Core Structure
-SSOQL follows a simple structure with named query blocks that contain operations on data. Each query can have multiple operations that process the data and produce ONE result. Queries do not produce objects or arrays, they produce a string, a number, or a boolean.
+SSOQL follows a simple structure with named query blocks that contain operations on data. Queries can return strings, booleans, integers or arrays of those values.
 
 ### Assumed Data
 Lots of data is assumed to reduce complexity. For example, if a query uses a key name for something far down in USE context with multiple contexts, it will return the query ran on all of the possible assumed fields. For example,
@@ -219,7 +219,7 @@ Retrieves data from the current context based on specified criteria.
 
 Syntax:
 ```
-SELECT field(s) [WHERE (condition)]
+SELECT [EACH] field(s) [WHERE (condition)]
 ```
 
 Examples:
@@ -243,6 +243,21 @@ Syntax for conditions:
 - Logical AND: `condition1 & condition2`
 - Logical OR: `condition1 | condition2`
 - Logical NOT: `!(condition)`
+
+#### EACH 
+For selecting something inside an array of objects. 
+
+Syntax:
+```
+SELECT EACH name
+```
+
+Example for the data products:[{name:"Phone"}, {name:"Computer"}]
+```
+USE products
+SELECT EACH name
+```
+Expected output: ["Phone", "Computer"]
 
 #### Variables
 Variables store intermediate results for later use. Variable names are prefixed with $.

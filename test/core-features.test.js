@@ -9,68 +9,123 @@ const ssoql = require("../dist/ssoql").default;
 // Simple test data structure with various types of data
 const testData = {
   products: [
-    { id: 1, name: "Laptop", category: "Electronics", price: 1200, inStock: true, tags: ["tech", "premium"] },
-    { id: 2, name: "Phone", category: "Electronics", price: 800, inStock: true, tags: ["tech", "mobile"] },
-    { id: 3, name: "Headphones", category: "Electronics", price: 200, inStock: false, tags: ["tech", "audio"] },
-    { id: 4, name: "Desk", category: "Furniture", price: 350, inStock: true, tags: ["home", "office"] },
-    { id: 5, name: "Chair", category: "Furniture", price: 150, inStock: true, tags: ["home", "office"] },
-    { id: 6, name: "Lamp", category: "Furniture", price: 50, inStock: false, tags: ["home", "lighting"] },
-    { id: 7, name: "T-shirt", category: "Clothing", price: 25, inStock: true, tags: ["casual", "cotton"] },
-    { id: 8, name: "Jeans", category: "Clothing", price: 60, inStock: true, tags: ["casual", "denim"] }
+    {
+      id: 1,
+      name: "Laptop",
+      category: "Electronics",
+      price: 1200,
+      inStock: true,
+      tags: ["tech", "premium"],
+    },
+    {
+      id: 2,
+      name: "Phone",
+      category: "Electronics",
+      price: 800,
+      inStock: true,
+      tags: ["tech", "mobile"],
+    },
+    {
+      id: 3,
+      name: "Headphones",
+      category: "Electronics",
+      price: 200,
+      inStock: false,
+      tags: ["tech", "audio"],
+    },
+    {
+      id: 4,
+      name: "Desk",
+      category: "Furniture",
+      price: 350,
+      inStock: true,
+      tags: ["home", "office"],
+    },
+    {
+      id: 5,
+      name: "Chair",
+      category: "Furniture",
+      price: 150,
+      inStock: true,
+      tags: ["home", "office"],
+    },
+    {
+      id: 6,
+      name: "Lamp",
+      category: "Furniture",
+      price: 50,
+      inStock: false,
+      tags: ["home", "lighting"],
+    },
+    {
+      id: 7,
+      name: "T-shirt",
+      category: "Clothing",
+      price: 25,
+      inStock: true,
+      tags: ["casual", "cotton"],
+    },
+    {
+      id: 8,
+      name: "Jeans",
+      category: "Clothing",
+      price: 60,
+      inStock: true,
+      tags: ["casual", "denim"],
+    },
   ],
   users: [
     { id: 1, name: "Alice", age: 28, active: true },
     { id: 2, name: "Bob", age: 34, active: true },
     { id: 3, name: "Charlie", age: 42, active: false },
-    { id: 4, name: "Diana", age: 31, active: true }
+    { id: 4, name: "Diana", age: 31, active: true },
   ],
   stores: {
     main: {
       location: "Downtown",
       inventory: [1, 2, 3, 5, 7, 8],
-      employees: 12
+      employees: 12,
     },
     branch: {
       location: "Suburb",
       inventory: [1, 4, 5, 6],
-      employees: 8
-    }
-  }
+      employees: 8,
+    },
+  },
 };
 
 // Test suite for core SSOQL features
-describe("SSOQL Core Features", function() {
-
+describe("SSOQL Core Features", function () {
   // Test basic SELECT queries
-  describe("Basic SELECT", function() {
-    it("should select all products", function() {
+  describe("Basic SELECT", function () {
+    it("should select all products and add their ids together", function () {
       const query = `
         USE products
 
         QUERY allProducts
-        SELECT *
+        SELECT id
+        SUM
         RETURN
       `;
 
       const result = ssoql.createQuery(query).execute(testData);
-      assert.strictEqual(result.allProducts.length, 8);
+      assert.strictEqual(result.allProducts, 36);
     });
 
-    it("should select a single field", function() {
+    it("should select a single field", function () {
       const query = `
-        USE products
+        USE stores.main
 
-        QUERY productNames
-        SELECT name
+        QUERY mainLocation
+        SELECT location
         RETURN
       `;
 
       const result = ssoql.createQuery(query).execute(testData);
-      assert.strictEqual(result.productNames.length, 8);
-      assert.strictEqual(result.productNames[0], "Laptop");
+      assert.strictEqual(result.mainLocation, "Downtown");
     });
 
-    it("should select multiple fields", function() {
+    it("should select fields from multiple options", function () {
       const query = `
         USE products
 
@@ -87,8 +142,8 @@ describe("SSOQL Core Features", function() {
   });
 
   // Test WHERE conditions
-  describe("WHERE Conditions", function() {
-    it("should filter with equality condition", function() {
+  describe("WHERE Conditions", function () {
+    it("should filter with equality condition", function () {
       const query = `
         USE products
 
@@ -102,7 +157,7 @@ describe("SSOQL Core Features", function() {
       assert.strictEqual(result.electronics[0].name, "Laptop");
     });
 
-    it("should filter with CONTAINS condition", function() {
+    it("should filter with CONTAINS condition", function () {
       const query = `
         USE products
 
@@ -115,7 +170,7 @@ describe("SSOQL Core Features", function() {
       assert.strictEqual(result.techProducts.length, 3);
     });
 
-    it("should combine conditions with AND", function() {
+    it("should combine conditions with AND", function () {
       const query = `
         USE products
 
@@ -130,8 +185,8 @@ describe("SSOQL Core Features", function() {
   });
 
   // Test COUNT operation
-  describe("COUNT Operation", function() {
-    it("should count all items", function() {
+  describe("COUNT Operation", function () {
+    it("should count all items", function () {
       const query = `
         USE products
 
@@ -144,7 +199,7 @@ describe("SSOQL Core Features", function() {
       assert.strictEqual(result.productCount, 8);
     });
 
-    it("should count filtered items", function() {
+    it("should count filtered items", function () {
       const query = `
         USE products
 
@@ -159,8 +214,8 @@ describe("SSOQL Core Features", function() {
   });
 
   // Test SUM operation
-  describe("SUM Operation", function() {
-    it("should sum selected values", function() {
+  describe("SUM Operation", function () {
+    it("should sum selected values", function () {
       const query = `
         USE products
 
@@ -174,7 +229,7 @@ describe("SSOQL Core Features", function() {
       assert.strictEqual(result.totalPrice, 2835); // Sum of all prices
     });
 
-    it("should sum filtered values", function() {
+    it("should sum filtered values", function () {
       const query = `
         USE products
 
@@ -190,8 +245,8 @@ describe("SSOQL Core Features", function() {
   });
 
   // Test DIVIDE operation
-  describe("DIVIDE Operation", function() {
-    it("should divide two values", function() {
+  describe("DIVIDE Operation", function () {
+    it("should divide two values", function () {
       const query = `
         USE products
 
@@ -209,8 +264,8 @@ describe("SSOQL Core Features", function() {
   });
 
   // Test PERCENT_OF operation
-  describe("PERCENT_OF Operation", function() {
-    it("should calculate percentage with two SELECT statements", function() {
+  describe("PERCENT_OF Operation", function () {
+    it("should calculate percentage with two SELECT statements", function () {
       const query = `
         USE products
 
@@ -223,7 +278,7 @@ describe("SSOQL Core Features", function() {
       assert.strictEqual(result.inStockPercent, 75); // 6 out of 8 products (75%)
     });
 
-    it("should calculate percentage with specific categories", function() {
+    it("should calculate percentage with specific categories", function () {
       const query = `
         USE products
 
@@ -238,8 +293,8 @@ describe("SSOQL Core Features", function() {
   });
 
   // Test MOST_FREQUENT operation
-  describe("MOST_FREQUENT Operation", function() {
-    it("should find the most frequent category", function() {
+  describe("MOST_FREQUENT Operation", function () {
+    it("should find the most frequent category", function () {
       const query = `
         USE products
 
@@ -251,13 +306,16 @@ describe("SSOQL Core Features", function() {
 
       const result = ssoql.createQuery(query).execute(testData);
       // There are 3 Electronics, 3 Furniture, 2 Clothing
-      assert.ok(result.topCategory === "Electronics" || result.topCategory === "Furniture");
+      assert.ok(
+        result.topCategory === "Electronics" ||
+          result.topCategory === "Furniture",
+      );
     });
   });
 
   // Test multiple query blocks
-  describe("Multiple Query Blocks", function() {
-    it("should process multiple query blocks", function() {
+  describe("Multiple Query Blocks", function () {
+    it("should process multiple query blocks", function () {
       const query = `
         USE products
 
@@ -277,8 +335,8 @@ describe("SSOQL Core Features", function() {
   });
 
   // Test USE statements with array notation
-  describe("USE with Array Notation", function() {
-    it("should select specific fields using array notation", function() {
+  describe("USE with Array Notation", function () {
+    it("should select specific fields using array notation", function () {
       const query = `
         USE products.[name, price, category]
 
@@ -290,16 +348,36 @@ describe("SSOQL Core Features", function() {
       const result = ssoql.createQuery(query).execute(testData);
       assert.ok(result.simpleProducts);
       if (result.simpleProducts.length > 0) {
-        assert.ok('name' in result.simpleProducts[0]);
-        assert.ok('price' in result.simpleProducts[0]);
-        assert.ok('category' in result.simpleProducts[0]);
+        assert.ok("name" in result.simpleProducts[0]);
+        assert.ok("price" in result.simpleProducts[0]);
+        assert.ok("category" in result.simpleProducts[0]);
       }
     });
   });
 
+  // Test EACH functionality
+  describe("EACH Functionality", function () {
+    it("should select a property from each item in an array", function () {
+      const query = `
+        USE products
+
+        QUERY productNames
+        SELECT EACH name
+        RETURN
+      `;
+
+      const result = ssoql.createQuery(query).execute(testData);
+      assert.strictEqual(result.productNames.length, 8);
+      assert.strictEqual(result.productNames[0], "Laptop");
+      assert.strictEqual(result.productNames[1], "Phone");
+      assert.ok(Array.isArray(result.productNames));
+      assert.ok(!result.productNames.some((item) => typeof item !== "string"));
+    });
+  });
+
   // Test expected objects
-  describe("Expected Objects", function() {
-    it("should correctly identify expected objects", function() {
+  describe("Expected Objects", function () {
+    it("should correctly identify expected objects", function () {
       const query = `
         USE products
         USE users

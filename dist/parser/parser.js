@@ -236,6 +236,8 @@ class Parser {
      * @returns Select operation node
      */
     parseSelectOperation() {
+        // Check if EACH keyword is present
+        const each = this.match(types_1.TokenType.EACH);
         // Parse fields (can be * or [field1, field2, ...])
         let fields;
         if (this.match(types_1.TokenType.ASTERISK)) {
@@ -263,6 +265,7 @@ class Parser {
             type: "SelectOperation",
             fields,
             conditions,
+            each,
         };
     }
     /**

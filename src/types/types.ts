@@ -36,6 +36,8 @@ export enum TokenType {
   STANDARD_DEVIATION = "STANDARD_DEVIATION",
   VARIANCE = "VARIANCE",
   RANGE = "RANGE",
+  EACH = "EACH",
+  
 
   // Operators
   CONTAINS = "CONTAINS",
@@ -150,6 +152,7 @@ export interface SelectOperationNode extends OperationNode {
   type: "SelectOperation";
   fields: string[] | "*";
   conditions?: ConditionNode;
+  each?: boolean;
 }
 
 /**
@@ -338,6 +341,7 @@ export interface ExecutionContext {
   data: Record<string, any>;
   variables: Map<string, any>;
   currentContext: any[];
+  usePath?: UsePathNode;
 }
 
 /**

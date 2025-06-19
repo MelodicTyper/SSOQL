@@ -32,6 +32,7 @@ var TokenType;
     TokenType["STANDARD_DEVIATION"] = "STANDARD_DEVIATION";
     TokenType["VARIANCE"] = "VARIANCE";
     TokenType["RANGE"] = "RANGE";
+    TokenType["EACH"] = "EACH";
     // Operators
     TokenType["CONTAINS"] = "CONTAINS";
     TokenType["NOT_CONTAINS"] = "NOT_CONTAINS";

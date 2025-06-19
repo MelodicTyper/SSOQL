@@ -2,7 +2,7 @@
  * SSOQL - Super Simple Object Query Language
  * Tokenizer
  */
-import { Token } from '../types/types';
+import { Token } from "../types/types";
 /**
  * Tokenizer class for SSOQL
  * Converts raw text into a sequence of tokens
