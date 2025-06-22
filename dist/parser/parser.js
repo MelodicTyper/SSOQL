@@ -238,6 +238,7 @@ class Parser {
     parseSelectOperation() {
         // Check if EACH keyword is present
         const each = this.match(types_1.TokenType.EACH);
+        // TODO make EACH more robust and make sure it's in the right position.
         // Parse fields (can be * or [field1, field2, ...])
         let fields;
         if (this.match(types_1.TokenType.ASTERISK)) {
@@ -276,6 +277,7 @@ class Parser {
         // For COUNT SELECT * syntax, we need to handle this specific case
         if (this.check(types_1.TokenType.SELECT)) {
             this.advance(); // Consume SELECT
+            // TODO this doesn't actually handle selections as they should be at all?
             // Create a select operation with * as fields
             const selectOperation = {
                 type: "SelectOperation",
@@ -313,6 +315,7 @@ class Parser {
      * @returns Divide operation node
      */
     parseDivideOperation() {
+        // TODO update this and all other multiply and such operations to consume context when there's only one variable
         const dividend = this.consume(types_1.TokenType.VARIABLE, "Expected variable as dividend").value;
         const divisor = this.consume(types_1.TokenType.VARIABLE, "Expected variable as divisor").value;
         return {

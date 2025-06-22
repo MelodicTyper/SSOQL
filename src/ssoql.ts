@@ -26,12 +26,12 @@ class SSOQL {
   createQuery(queryText: string): SSOQLQuery {
     // Parse the query into an AST
     const ast = this.parseQuery(queryText);
-
     return {
       /**
        * Returns the names of objects expected by the query
        */
       expectedObjects: (): string[] => {
+        //console.log(ast.usePaths.map((usePath) => usePath.path))
         return ast.usePaths.map((usePath) => usePath.path);
       },
 

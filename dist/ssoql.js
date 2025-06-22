@@ -30,6 +30,7 @@ class SSOQL {
              * Returns the names of objects expected by the query
              */
             expectedObjects: () => {
+                //console.log(ast.usePaths.map((usePath) => usePath.path))
                 return ast.usePaths.map((usePath) => usePath.path);
             },
             /**

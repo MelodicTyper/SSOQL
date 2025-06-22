@@ -46,6 +46,8 @@ export class Executor {
   private variables: Map<string, any> = new Map();
   private usePaths: UsePathNode[] = [];
 
+  
+  
   /**
    * Creates a new executor
    * @param program The AST program to execute
@@ -55,6 +57,7 @@ export class Executor {
     this.program = program;
     this.data = data;
     this.usePaths = program.usePaths;
+    
   }
 
   /**
@@ -93,7 +96,7 @@ export class Executor {
 
     // Resolve data for this query based on USE paths
     context.currentContext = this.resolveDataFromUsePaths();
-
+    
     return context;
   }
 
@@ -107,10 +110,10 @@ export class Executor {
     }
 
     const resolvedData: any[] = [];
-
+    
     for (const usePath of this.usePaths) {
       const pathParts = usePath.path.split(".");
-
+      
       // Start from the root data object
       let currentData = this.data;
 
@@ -155,7 +158,7 @@ export class Executor {
         }
       }
     }
-
+    //console.log(resolvedData)
     return resolvedData;
   }
 
@@ -273,6 +276,21 @@ export class Executor {
     let result: any[] = [];
 
     // TODO implement this right
+    // 
+    // First find if the field has multiple possible paths for the query to execute on for USE y2025.[w1, w2].O.play
+    // We need to have a tree of every single object. When we select a certain key, like play, we need to search the entire tree and find each instance of that key 
+    // If there's more than one in our USE tree, then we return an array of possibilities. Each subsequent operation in the context will perform on each of those possibilities.
+    // A return will return the query with an object of possbilities with the key to each being a branch in that tree
+    // 
+    // So we need:
+    // 0. Update the test file to test for our end goal.
+    // 1. Tree of each object key implemented in the find use path thingy
+    // 2. Update that arrays of objects are NOT allowed in SSOQL, arrays of things can only be of supported fields like strings, numbers, and booleans. Update the tests to match this
+    // 3. Refine how the current context data is used. Why is it sometimes object and sometimes array? Implement these changes within each function that expects the current context to be like that
+    // 4. Refine the return statement and how it deals with possibilities. 
+    // 5. Get sucessful tests for these simple features, then test the rest of the language.
+    // 
+    // This is definetly the most interesting problem in this language. Might be a challenge to solve
     
     // Each select statement wipes the current context clean
     context.currentContext = [];

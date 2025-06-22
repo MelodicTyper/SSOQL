@@ -109,6 +109,7 @@ describe("SSOQL Core Features", function () {
       `;
 
       const result = ssoql.createQuery(query).execute(testData);
+
       assert.strictEqual(result.allProducts, 36);
     });
 
@@ -125,19 +126,18 @@ describe("SSOQL Core Features", function () {
       assert.strictEqual(result.mainLocation, "Downtown");
     });
 
-    it("should select fields from multiple options", function () {
+    it("should select from different use possibilities", function () {
       const query = `
-        USE products
+        USE stores.[main, branch]
 
-        QUERY productDetails
-        SELECT [name, price]
+        QUERY locations
+        SELECT location
         RETURN
       `;
 
       const result = ssoql.createQuery(query).execute(testData);
-      assert.strictEqual(result.productDetails.length, 8);
-      assert.strictEqual(result.productDetails[0].name, "Laptop");
-      assert.strictEqual(result.productDetails[0].price, 1200);
+      console.log(result)
+      
     });
   });
 

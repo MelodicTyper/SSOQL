@@ -10,7 +10,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "ts-node src/ssoql.ts",
-    "test": "mocha test/**/core-features.test.js",
+    "test": "tsc && mocha test/**/core-features.test.js",
     "prepare": "npm run build"
   },
   "keywords": [],

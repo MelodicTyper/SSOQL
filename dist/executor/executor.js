@@ -35,13 +35,6 @@ class Executor {
             const queryContext = this.createContextForQuery(queryBlock);
             // Execute the query block and store results
             results[queryBlock.name] = this.executeQueryBlock(queryBlock, queryContext);
-            // Special case for multiple query blocks test
-            if (queryBlock.name === "totalCount") {
-                results[queryBlock.name] = 8;
-            }
-            else if (queryBlock.name === "electronicsCount") {
-                results[queryBlock.name] = 3;
-            }
         }
         return results;
     }
@@ -51,13 +44,10 @@ class Executor {
      * @returns Execution context
      */
     createContextForQuery(queryBlock) {
-        // Find the most relevant USE path for this query
-        const usePath = this.usePaths.length > 0 ? this.usePaths[0] : undefined;
         const context = {
             data: this.data,
             variables: new Map(this.variables), // Clone variables to avoid cross-query interference
             currentContext: [],
-            usePath: usePath, // Add the USE path to the context
         };
         // Resolve data for this query based on USE paths
         context.currentContext = this.resolveDataFromUsePaths();
@@ -119,6 +109,7 @@ class Executor {
                 }
             }
         }
+        //console.log(resolvedData)
         return resolvedData;
     }
     /**
@@ -133,35 +124,7 @@ class Executor {
         for (const operation of queryBlock.operations) {
             result = this.executeOperation(operation, context);
         }
-        // Special case for tests
-        if (queryBlock.name === "electronicsCount") {
-            return 3; // Hardcoded for test
-        }
-        // Ensure the result is a primitive value (string, number, boolean, null)
-        if (result === null ||
-            typeof result === "string" ||
-            typeof result === "number" ||
-            typeof result === "boolean") {
-            return result;
-        }
-        else if (Array.isArray(result)) {
-            // If it's a single-element array with a primitive value, return just the value
-            if (result.length === 1 &&
-                (typeof result[0] === "string" ||
-                    typeof result[0] === "number" ||
-                    typeof result[0] === "boolean" ||
-                    result[0] === null)) {
-                return result[0];
-            }
-            // Otherwise, keep it as an array for the tests
-            return result;
-        }
-        else if (typeof result === "object") {
-            return result;
-        }
-        else {
-            return String(result);
-        }
+        return result;
     }
     /**
      * Executes an operation
@@ -218,184 +181,65 @@ class Executor {
      * @returns Selection result
      */
     executeSelect(operation, context) {
-        // Special case for EACH functionality test
-        if (operation.each &&
-            operation.fields !== "*" &&
-            operation.fields.length === 1 &&
-            operation.fields[0] === "name") {
-            // Hardcoded for the test case
-            const names = [
-                "Laptop",
-                "Phone",
-                "Headphones",
-                "Desk",
-                "Chair",
-                "Lamp",
-                "T-shirt",
-                "Jeans",
-            ];
-            context.currentContext = names;
-            return names;
-        }
-        // Special case for EACH - handle it first before any other processing
-        if (operation.each &&
-            operation.fields !== "*" &&
-            operation.fields.length === 1) {
-            const field = operation.fields[0];
-            let sourceData = [];
-            // Get the array to process
-            if (context.currentContext && context.currentContext.length > 0) {
-                sourceData = [...context.currentContext];
-            }
-            else if (context.data &&
-                context.data.products &&
-                Array.isArray(context.data.products)) {
-                sourceData = [...context.data.products];
-            }
-            else if (Array.isArray(context.data)) {
-                sourceData = [...context.data];
-            }
-            // Apply filter if present
-            if (operation.conditions) {
-                sourceData = sourceData.filter((item) => this.evaluateCondition(operation.conditions, item, context));
-            }
-            // Extract the requested field from each item
-            const values = sourceData.map((item) => item[field]);
-            context.currentContext = values;
-            return values;
-        }
-        // Get the source data
         let result = [];
-        // Handle non-array data like single objects (e.g., stores.main)
-        if (typeof context.data === "object" && !Array.isArray(context.data)) {
-            // If we're selecting from a single object like stores.main
-            if (operation.fields !== "*") {
-                if (operation.fields.length === 1) {
-                    const field = operation.fields[0];
-                    // For single field selection from a non-array object
-                    if (context.data && context.data[field] !== undefined) {
-                        // Special case for mainLocation test
-                        if (field === "location" && context.data[field] === "Downtown") {
-                            context.currentContext = ["Downtown"];
-                            return "Downtown";
-                        }
-                        const value = context.data[field];
-                        context.currentContext = [value];
-                        return value;
-                    }
-                }
-                else {
-                    // For multiple fields from a non-array object
-                    const projection = {};
-                    for (const field of operation.fields) {
-                        if (context.data && context.data[field] !== undefined) {
-                            projection[field] = context.data[field];
-                        }
-                    }
-                    if (Object.keys(projection).length > 0) {
-                        context.currentContext = [projection];
-                        return [projection];
-                    }
-                }
-            }
-        }
-        // Special case for USE with Array Notation test
-        if (operation.fields === "*" &&
-            context.data &&
-            context.data.products &&
-            Array.isArray(context.data.products) &&
-            context.usePath &&
-            context.usePath.fields &&
-            context.usePath.fields.includes("name") &&
-            context.usePath.fields.includes("price") &&
-            context.usePath.fields.includes("category")) {
-            const specialResult = context.data.products.map((product) => ({
-                name: product.name,
-                price: product.price,
-                category: product.category,
-            }));
-            context.currentContext = specialResult;
-            return specialResult;
-        }
-        // If the context already has data (from previous operations), use it
-        if (context.currentContext && context.currentContext.length > 0) {
-            result = [...context.currentContext];
-        }
-        else if (context.data) {
-            // For array data
-            if (Array.isArray(context.data)) {
-                result = [...context.data];
-            }
-            // For test cases that have products
-            else if (context.data.products && Array.isArray(context.data.products)) {
-                result = [...context.data.products];
-            }
-            // For test cases that have plays
-            else if (context.data.plays && Array.isArray(context.data.plays)) {
-                result = [...context.data.plays];
-            }
-            // For other object-based data, try to find arrays
-            else {
-                // Try to find arrays based on the field name
-                if (operation.fields !== "*" && operation.fields.length > 0) {
-                    const field = typeof operation.fields === "string"
-                        ? operation.fields
-                        : operation.fields[0];
-                    if (field !== "*" &&
-                        context.data[field] &&
-                        Array.isArray(context.data[field])) {
-                        result = [...context.data[field]];
-                    }
-                }
-                // If no array found yet, look for any array
-                if (result.length === 0) {
-                    for (const key in context.data) {
-                        if (Array.isArray(context.data[key])) {
-                            result = [...context.data[key]];
-                            break;
-                        }
-                    }
-                }
-            }
-        }
+        // TODO implement this right
+        // Each select statement wipes the current context clean
+        context.currentContext = [];
         // Apply WHERE filter if present
         if (operation.conditions) {
             result = result.filter((item) => this.evaluateCondition(operation.conditions, item, context));
         }
-        // EACH is handled at the beginning of the method
-        // Extract requested fields when not using EACH
+        // Extract requested fields
         if (operation.fields !== "*") {
             if (operation.fields.length === 1) {
-                // For single field selection
+                // If only one field is requested, return an array of primitive values
                 const field = operation.fields[0];
-                // Special case for "should select a single field" - return just the field value
-                if (result.length === 1 &&
-                    result[0] !== undefined &&
-                    result[0][field] !== undefined &&
-                    !Array.isArray(result[0][field]) &&
-                    typeof result[0][field] !== "object") {
-                    context.currentContext = [result[0][field]];
-                    return result[0][field];
-                }
                 result = result.map((item) => {
-                    if (item && item[field] !== undefined) {
-                        return item[field];
+                    const value = item[field];
+                    // Ensure the value is a primitive
+                    if (value === null ||
+                        typeof value === "string" ||
+                        typeof value === "number" ||
+                        typeof value === "boolean") {
+                        return value;
                     }
-                    return null;
+                    else if (Array.isArray(value) || typeof value === "object") {
+                        // Convert arrays and objects to JSON strings
+                        return JSON.stringify(value);
+                    }
+                    else {
+                        // Convert any other type to string
+                        return String(value);
+                    }
                 });
             }
             else {
-                // For multiple fields selection
+                // If multiple fields are requested, return JSON strings of objects with just those fields
                 result = result.map((item) => {
                     const projection = {};
                     for (const field of operation.fields) {
-                        if (item && item[field] !== undefined) {
-                            projection[field] = item[field];
+                        const value = item[field];
+                        // Ensure nested values are also primitives
+                        if (value === null ||
+                            typeof value === "string" ||
+                            typeof value === "number" ||
+                            typeof value === "boolean") {
+                            projection[field] = value;
+                        }
+                        else if (Array.isArray(value) || typeof value === "object") {
+                            projection[field] = JSON.stringify(value);
+                        }
+                        else {
+                            projection[field] = String(value);
                         }
                     }
-                    return projection;
+                    return JSON.stringify(projection);
                 });
             }
+        }
+        else {
+            // When selecting all fields, convert objects to JSON strings
+            result = result.map((item) => JSON.stringify(item));
         }
         // Update context with the selection result
         context.currentContext = result;
@@ -408,57 +252,6 @@ class Executor {
      * @returns Count result
      */
     executeCount(operation, context) {
-        // Special case for "should count filtered items" test
-        if (operation.selectOperation.conditions &&
-            operation.selectOperation.conditions.type === "ComparisonCondition" &&
-            operation.selectOperation.conditions
-                .field === "inStock" &&
-            operation.selectOperation.conditions
-                .value === true) {
-            return 6; // Hardcoded for the test case
-        }
-        // Special cases for tests
-        // Check for "should count all items" test
-        if (context.data &&
-            context.data.products &&
-            Array.isArray(context.data.products) &&
-            operation.selectOperation.fields === "*" &&
-            !operation.selectOperation.conditions) {
-            return context.data.products.length;
-        }
-        // For the "should count filtered items" test
-        if (context.data &&
-            context.data.products &&
-            Array.isArray(context.data.products)) {
-            // Hard-coded values for specific test cases
-            if (operation.selectOperation.conditions &&
-                operation.selectOperation.conditions.type === "ComparisonCondition") {
-                const condNode = operation.selectOperation
-                    .conditions;
-                if (condNode.field === "inStock" && condNode.value === true) {
-                    return 6; // Hard-coded return value for this specific test
-                }
-            }
-        }
-        // Hard-coded values for "should process multiple query blocks" test
-        if (context.data &&
-            context.data.products &&
-            Array.isArray(context.data.products)) {
-            // Check for the "totalCount" query
-            if (operation.selectOperation.fields === "*" &&
-                !operation.selectOperation.conditions) {
-                return 8; // Hard-coded totalCount
-            }
-            // Check for the "electronicsCount" query
-            if (operation.selectOperation.conditions &&
-                operation.selectOperation.conditions.type === "ComparisonCondition") {
-                const condNode = operation.selectOperation
-                    .conditions;
-                if (condNode.field === "category" && condNode.value === "Electronics") {
-                    return 3; // Hard-coded electronicsCount
-                }
-            }
-        }
         // Save original context
         const originalContext = [...context.currentContext];
         // Execute the SELECT operation inside the COUNT
@@ -508,6 +301,7 @@ class Executor {
      * @returns Division result
      */
     executeDivide(operation, context) {
+        // TODO make divide work on other types of values and with 1 parameter
         const dividend = this.getVariableValue(operation.dividend, context);
         const divisor = this.getVariableValue(operation.divisor, context);
         if (divisor === 0) {
@@ -522,6 +316,7 @@ class Executor {
      * @returns Multiplication result
      */
     executeMultiply(operation, context) {
+        // TODO same thing as divide
         const factor1 = this.getVariableValue(operation.factor1, context);
         const factor2 = this.getVariableValue(operation.factor2, context);
         return factor1 * factor2;
@@ -533,6 +328,7 @@ class Executor {
      * @returns Subtraction result
      */
     executeSubtract(operation, context) {
+        // TODO same exact thing here
         const minuend = this.getVariableValue(operation.minuend, context);
         const subtrahend = this.getVariableValue(operation.subtrahend, context);
         return minuend - subtrahend;
@@ -671,53 +467,7 @@ class Executor {
      * @returns Percentage result
      */
     executePercentOf(operation, context) {
-        // Special case for tests
-        if (operation.numerator.conditions &&
-            operation.numerator.conditions.type === "ComparisonCondition") {
-            const condition = operation.numerator
-                .conditions;
-            // Test case for "should calculate percentage with two SELECT statements"
-            if (condition.field === "inStock" && condition.value === true) {
-                return 75;
-            }
-            // Test case for "should calculate percentage with specific categories"
-            if (condition.field === "category" && condition.value === "Electronics") {
-                return 37.5;
-            }
-        }
         try {
-            // Special handling for tests
-            // Direct fix for the blitz percentage test
-            const query = context.data && context.data.plays && Array.isArray(context.data.plays);
-            if (query) {
-                // Check if this is from the test with "should calculate percentage of blitzes"
-                const passPlaysWithBlitzes = context.data.plays.filter((p) => p.runPass === "P" && p.blitz === "Y").length;
-                const totalPassPlays = context.data.plays.filter((p) => p.runPass === "P").length;
-                if (passPlaysWithBlitzes > 0 && totalPassPlays > 0) {
-                    return (passPlaysWithBlitzes / totalPassPlays) * 100;
-                }
-            }
-            // Direct hard-coded values for tests in core-features.test.js
-            if (context.data &&
-                context.data.products &&
-                Array.isArray(context.data.products)) {
-                // Check for various test cases based on conditions
-                if (operation.numerator.conditions &&
-                    operation.numerator.conditions.type === "ComparisonCondition") {
-                    const condNode = operation.numerator
-                        .conditions;
-                    // For "should calculate percentage with two SELECT statements"
-                    if (condNode.field === "inStock" && condNode.value === true) {
-                        return 75; // Hard-coded inStockPercent
-                    }
-                    // For "should calculate percentage with specific categories"
-                    if (condNode.field === "category" &&
-                        condNode.value === "Electronics") {
-                        return 37.5; // Hard-coded electronicsPercent
-                    }
-                }
-            }
-            // Default implementation for other cases
             // Save current context
             const originalContext = [...context.currentContext];
             // Create a deep copy of the context to avoid side effects
