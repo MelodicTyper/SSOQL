@@ -78,3 +78,4 @@ class SSOQL {
 // Export a singleton instance
 const ssoql = new SSOQL();
 exports.default = ssoql;
+//# sourceMappingURL=ssoql.js.map

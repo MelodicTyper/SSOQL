@@ -6,6 +6,7 @@
 const assert = require("assert");
 const ssoql = require("../dist/ssoql").default;
 
+
 // Simple test data structure with various types of data
 const testData = {
   products: [
@@ -98,11 +99,11 @@ const testData = {
 describe("SSOQL Core Features", function () {
   // Test basic SELECT queries
   describe("Basic SELECT", function () {
-    it("should select all products and add their ids together", function () {
+    it("should find user id", function () {
       const query = `
-        USE products
+        USE users
 
-        QUERY allProducts
+        QUERY userIds
         SELECT id
         SUM
         RETURN
@@ -110,7 +111,7 @@ describe("SSOQL Core Features", function () {
 
       const result = ssoql.createQuery(query).execute(testData);
 
-      assert.strictEqual(result.allProducts, 36);
+      assert.strictEqual(result.userIds, 10);
     });
 
     it("should select a single field", function () {
@@ -137,7 +138,8 @@ describe("SSOQL Core Features", function () {
 
       const result = ssoql.createQuery(query).execute(testData);
       console.log(result)
-      
+      assert.strictEqual(result.locations, {main: "Downtown", branch: "Suburb"});
+
     });
   });
 
@@ -147,14 +149,13 @@ describe("SSOQL Core Features", function () {
       const query = `
         USE products
 
-        QUERY electronics
-        SELECT * WHERE (category = "Electronics")
+        QUERY electronicProducts
+        SELECT id WHERE (category = "Electronics")
         RETURN
       `;
 
       const result = ssoql.createQuery(query).execute(testData);
       assert.strictEqual(result.electronics.length, 3);
-      assert.strictEqual(result.electronics[0].name, "Laptop");
     });
 
     it("should filter with CONTAINS condition", function () {
@@ -162,7 +163,7 @@ describe("SSOQL Core Features", function () {
         USE products
 
         QUERY techProducts
-        SELECT * WHERE (tags CONTAINS "tech")
+        SELECT id WHERE (tags CONTAINS "tech")
         RETURN
       `;
 
@@ -175,12 +176,13 @@ describe("SSOQL Core Features", function () {
         USE products
 
         QUERY inStockElectronics
-        SELECT * WHERE (category = "Electronics" & inStock = true)
+        SELECT id WHERE (category = "Electronics" & inStock = true)
         RETURN
       `;
 
       const result = ssoql.createQuery(query).execute(testData);
-      assert.strictEqual(result.inStockElectronics.length, 2);
+      
+      assert.strictEqual(result.inStockElectronics, [1,2]);
     });
   });
 
@@ -191,7 +193,7 @@ describe("SSOQL Core Features", function () {
         USE products
 
         QUERY productCount
-        COUNT SELECT *
+        COUNT SELECT id
         RETURN
       `;
 
@@ -204,7 +206,7 @@ describe("SSOQL Core Features", function () {
         USE products
 
         QUERY inStockCount
-        COUNT SELECT * WHERE (inStock = true)
+        COUNT SELECT id WHERE (inStock = true)
         RETURN
       `;
 
@@ -253,7 +255,7 @@ describe("SSOQL Core Features", function () {
         QUERY averagePrice
         SELECT price
         $totalPrice SUM
-        $productCount COUNT SELECT *
+        $productCount COUNT SELECT id
         DIVIDE $totalPrice $productCount
         RETURN
       `;
@@ -270,7 +272,7 @@ describe("SSOQL Core Features", function () {
         USE products
 
         QUERY inStockPercent
-        PERCENT_OF SELECT * WHERE (inStock = true), SELECT *
+        PERCENT_OF SELECT id WHERE (inStock = true), SELECT id
         RETURN
       `;
 
@@ -283,7 +285,7 @@ describe("SSOQL Core Features", function () {
         USE products
 
         QUERY electronicsPercent
-        PERCENT_OF SELECT * WHERE (category = "Electronics"), SELECT *
+        PERCENT_OF SELECT id WHERE (category = "Electronics"), SELECT id
         RETURN
       `;
 
@@ -320,7 +322,7 @@ describe("SSOQL Core Features", function () {
         USE products
 
         QUERY totalCount
-        COUNT SELECT *
+        COUNT SELECT id
         RETURN
 
         QUERY electronicsCount
@@ -341,7 +343,7 @@ describe("SSOQL Core Features", function () {
         USE products.[name, price, category]
 
         QUERY simpleProducts
-        SELECT *
+        COUNT SELECT name
         RETURN
       `;
 
@@ -355,39 +357,21 @@ describe("SSOQL Core Features", function () {
     });
   });
 
-  // Test EACH functionality
-  describe("EACH Functionality", function () {
-    it("should select a property from each item in an array", function () {
-      const query = `
-        USE products
-
-        QUERY productNames
-        SELECT EACH name
-        RETURN
-      `;
-
-      const result = ssoql.createQuery(query).execute(testData);
-      assert.strictEqual(result.productNames.length, 8);
-      assert.strictEqual(result.productNames[0], "Laptop");
-      assert.strictEqual(result.productNames[1], "Phone");
-      assert.ok(Array.isArray(result.productNames));
-      assert.ok(!result.productNames.some((item) => typeof item !== "string"));
-    });
-  });
-
   // Test expected objects
   describe("Expected Objects", function () {
     it("should correctly identify expected objects", function () {
       const query = `
         USE products
         USE users
+        USE locations
 
         QUERY dummy
-        COUNT SELECT *
+        COUNT SELECT id
         RETURN
       `;
 
       const expectedObjects = ssoql.createQuery(query).expectedObjects();
+      console.log(expectedObjects)
       assert.ok(expectedObjects.includes("products"));
       assert.ok(expectedObjects.includes("users"));
     });

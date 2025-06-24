@@ -1,11 +1,12 @@
 # SSOQL - Super Simple Object Query Language
 
-What if there was SQL for interacting with Javascript objects organized into a table? Introducing SSOQL, a simple custom made language for querying javascript objects that's inspired by SQL's syntax. Designed to have AI interact with a dataset without having it directly generating code. 
+What if there was SQL for interacting with Javascript objects organized into a table? Introducing SSOQL, a simple custom made language for querying javascript objects that's inspired by SQL's syntax. Designed to have AI interact with a tabular dataset without having it directly generating code. 
 
 What SSOQL is not:
 - Not a high performance or optimized library meant for databases
 - Not a database at all - there's no inserting data
 - Not intended to replace full-featured query languages for complex applications
+- Not meant to query objects not organized into a tabular area.
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue)](https://www.typescriptlang.org/)
 

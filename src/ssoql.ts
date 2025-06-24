@@ -12,7 +12,7 @@ import { Tokenizer } from "./tokenizer/tokenizer";
 import { Parser } from "./parser/parser";
 import { Executor } from "./executor/executor";
 import { SSOQLQuery, ProgramNode, ValueType } from "./types/types";
-
+import { cloneDeep } from "lodash-es";
 /**
  * SSOQL implementation class
  * Handles query creation and execution
@@ -24,6 +24,7 @@ class SSOQL {
    * @returns A SSOQLQuery object that can be executed against data
    */
   createQuery(queryText: string): SSOQLQuery {
+    
     // Parse the query into an AST
     const ast = this.parseQuery(queryText);
     return {

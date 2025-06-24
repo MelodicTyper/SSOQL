@@ -82,3 +82,4 @@ var OperatorType;
     OperatorType["OR"] = "|";
     OperatorType["NOT"] = "!";
 })(OperatorType || (exports.OperatorType = OperatorType = {}));
+//# sourceMappingURL=types.js.map
